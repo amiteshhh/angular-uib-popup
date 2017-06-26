@@ -1,5 +1,5 @@
 (function() {
-    /* popup.service.js by Amitesh Kumar*/
+    /* popup.service.js by Amitesh Kumar https://github.com/amiteshhh/angular-uib-popup*/
     angular.module('popup', [])
         .provider('PopupSvc', PopupProviderFunction);
 
