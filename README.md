@@ -1,4 +1,4 @@
-# Angular Bootstrap Popup
+# Angular Bootstrap Popup & Spinner
 
 
 A simple and elegant angular service inspired by [ionic popup](http://ionicframework.com/docs/v1/api/service/$ionicPopup) to show loader/spinner and popup(or dialogue) window for `alert` and `confirm` with custom content and look.
