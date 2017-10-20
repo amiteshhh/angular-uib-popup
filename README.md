@@ -1,10 +1,18 @@
 # Angular Bootstrap Popup
 
 
-A simple and elegant angular service inspired by [ionic popup](http://ionicframework.com/docs/v1/api/service/$ionicPopup) to show popup(or dialogue) window for `alert` and `confirm` with custom content and look.
+A simple and elegant angular service inspired by [ionic popup](http://ionicframework.com/docs/v1/api/service/$ionicPopup) to show loader/spinner and popup(or dialogue) window for `alert` and `confirm` with custom content and look.
 
+## Dialoge Box
 PopupSvc exposes two methods `alert` and `confirm` which takes one parameter either string/html template or an [option](#advance-usage) object for customized look and feel.
 These methods returns [promise](https://docs.angularjs.org/api/ng/service/$q) which is resolved when the popup is dismissed. It also returns `close` method to programmatically close it.
+
+## Spinner
+
+Use below methods to display a loader or spinner as overlay driven by Bootstrap modal window
+
+    1. spin : Show a spinner/loader
+    2. stopSpin: Stop the spinner
 
 
 ## Dependency
@@ -17,10 +25,10 @@ These methods returns [promise](https://docs.angularjs.org/api/ng/service/$q) wh
 
 ## Demo
 
-Check out the demo at [Plunker](https://embed.plnkr.co/SNhye1/)
+Check out the demo at [Plunker](https://embed.plnkr.co/RX0pIj/)
 
 
-## Usage 
+## Dialoge Usage 
 
 ```javascript
 angular.module('myApp', ['popup']);//add popup module dependency
@@ -62,6 +70,18 @@ angular.controller('myCtrl', ['PopupSvc', function(PopupSvc){//Inject the PopupS
 }]);
 
 ```
+## Spinner Usage 
+
+```javascript
+PopupSvc.spin();//spinner without leading text
+PopupSvc.spin('Saving...');//spinner with leading text
+PopupSvc.stopSpin();//stop and remove the last spinner
+
+//Advance usage to stop the required spinner in case of multiple spinner showing at a time
+var modal = PopupSvc.spin();//will create the spinner and return modal reference to stop it
+modal.close();//stop or close the spinner
+```
+
 
 ## Install
 

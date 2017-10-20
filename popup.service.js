@@ -1,5 +1,5 @@
 (function() {
-    /* popup.service.js by Amitesh Kumar https://github.com/amiteshhh/angular-uib-popup*/
+    /* popup.service.js v1.1 by Amitesh Kumar*/
     angular.module('popup', [])
         .provider('PopupSvc', PopupProviderFunction);
 
@@ -63,12 +63,25 @@
             </div>\
         </div>';
 
+        var SPINNER_TEMPLATE = '<div><i class="fa fa-spinner fa-spin fa-2x"></i><span style="margin-left:5px; font-size: 1.3em">{{vm.title}}</span></div>';
+        var _spinnerModals = [];
+        
+        _addDirectiveStyle();
+        
         return {
             alert: _alert,
-            confirm: _confirm
-            //prompt: _prompt,
-            //show: _show//generic one which can show multiple buttons
+            confirm: _confirm,
+            spin: _spin,
+            stopSpin: _stopSpin,
+            stopAll: _stopAll
+                //prompt: _prompt,
+                //show: _show//generic one which can show multiple buttons
         };
+        
+        function _addDirectiveStyle(){
+            //minified spinner.css
+            angular.element(document).find('head').prepend('<style type="text/css">@charset "UTF-8";.modal-spinner .modal-content{padding:20px;border-radius:5px;background-color:rgba(0,0,0,.8);color:#fff;text-align:center;text-overflow:ellipsis;font-size:15px}.modal-spinner-text .modal-content{text-align:left}.modal-spinner .modal-dialog{position:absolute;left:0;right:0;top:0;bottom:0;margin:auto;width:80px;height:300px}.modal-spinner-text .modal-dialog{text-align:left;width:250px}</style>');
+        }
 
         function _alert(opts) {
             return _showPopup(extend([{
@@ -96,6 +109,48 @@
             }], opts || {}));
         }
 
+        function _spin(title) { //by default spinner is global
+            var windowClass = 'modal-spinner';
+            if (title) {
+                windowClass += ' modal-spinner-text';
+            }
+
+            var modal = _showPopup({
+                title: title,
+                backdrop: 'static',
+                keyboard: false,
+                windowClass: windowClass,
+                isSpinner: true
+            });
+            var modalClose = modal.close;
+            var index = _spinnerModals.length;
+            _spinnerModals.push(modal);
+            modal.close = function(calledViaStop) {
+                modalClose();
+                if(!calledViaStop){//i.e from UI some one kept the reference of modal and called modal.close()
+                    _spinnerModals.splice(index, 1);
+                }
+            };
+
+            return modal;
+        }
+
+        function _stopSpin() {
+            if (!_spinnerModals.length) {
+                return;
+            }
+            var spinnerModal = _spinnerModals.pop();
+            spinnerModal.close(true);
+        }
+
+        function _stopAll() {
+            var spinnerModal;
+            while (_spinnerModals.length) {
+                spinnerModal = _spinnerModals.pop();
+                spinnerModal.close(true);
+            }
+        }
+
         function extend(buttons, userOpts) {
             var options = angular.copy(DEFAULTS);
             userOpts = userOpts || 'You there?';
@@ -114,10 +169,11 @@
 
         function _showPopup(options) {
             var modalInstance = $uibModal.open({
-                template: POPUP_TEMPLATE,
+                template: options.isSpinner ? SPINNER_TEMPLATE : POPUP_TEMPLATE,
                 size: options.size,
                 backdrop: options.backdrop,
                 keyboard: options.keyboard,
+                windowClass: options.windowClass,
                 bindToController: true,
                 controllerAs: 'vm',
                 controller: ['$injector', 'options', ModelController],
@@ -130,7 +186,6 @@
 
             var obj = modalInstance.result; //returned promise
             obj.close = modalInstance.close; //augment close method
-
             return obj;
         }
 
@@ -152,6 +207,10 @@
                 var $sce = $injector.get('$sce');
 
                 options.title = $sce.trustAsHtml(options.title);
+                if (options.isSpinner) {
+                    return;
+                }
+
                 options.subTitle = $sce.trustAsHtml(options.subTitle);
                 options.body = $sce.trustAsHtml(options.body);
                 options.buttons.forEach(function(button, index, buttons) {
